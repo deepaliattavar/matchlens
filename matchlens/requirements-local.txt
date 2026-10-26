@@ -1,2 +1,0 @@
-# Optional native generation only; matches the user's reported installed SDK.
-foundry-local-sdk==2.2.1
