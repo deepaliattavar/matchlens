@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+.streamlit/secrets.toml
+*.log
+*.tmp
+.DS_Store
+
+data/preparations/
+
+data/local_speed_report.json
