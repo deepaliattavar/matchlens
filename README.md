@@ -2,15 +2,17 @@
 
 **They won the ball. What happened next?**
 
-MatchLens helps a sports producer turn synthetic possession recoveries into audience-specific stories with inspectable evidence. One recovery reaches a saved shot in eight seconds; another possession ends without a shot. The story changes only as the relevant events are revealed.
+MatchLens helps sports producers turn possession recoveries into clear stories backed by event evidence. Compare a recovery that reaches a saved shot in eight seconds with one that ends without a shot, then tailor and export the story for your audience.
 
-Built by **Deepali Attavar**, with AI-assisted development. Python, pandas and Streamlit power the application. **Microsoft Foundry Local / Phi-4-mini** supports optional local wording preparation. No paid API, Azure deployment or Ollama is required.
+Built by **Deepali Attavar**, with AI-assisted development. Uses **Python, pandas, Streamlit, and optional Microsoft Foundry Local / Phi-4-mini**.
 
-## Run the judge demo — no model download
+All teams, players and match events are synthetic. The app runs locally; no Azure subscription, API key or paid inference is required.
 
-Python **3.12**. Extract/download the project and open a terminal in the folder containing `app.py`.
+## Try it
 
-Windows Command Prompt or PowerShell:
+Use Python **3.12**. Download this repository and open a terminal in the folder containing `app.py`.
+
+**Windows**
 
 ```text
 python -m venv .venv
@@ -18,7 +20,7 @@ python -m venv .venv
 .venv\Scripts\python.exe -m streamlit run app.py
 ```
 
-macOS/Linux:
+**macOS / Linux**
 
 ```sh
 python3 -m venv .venv
@@ -26,64 +28,59 @@ python3 -m venv .venv
 .venv/bin/python -m streamlit run app.py
 ```
 
-Open the local address printed by Streamlit, normally http://localhost:8501. Dependency installation needs internet access. Default replay uses bundled files and starts no model. There are no credentials, account requirements or paid endpoints. Intended platform: desktop browser with a local Python application; native optional AI has only a user-reported Windows run.
+Open the local address printed by Streamlit. Installing dependencies needs internet access; replay needs no model download. Optional native AI setup is documented separately.
 
-## A two-minute walkthrough
+## Explore a story
 
-1. Select **Riverside**, **Casual Fan**, **English**. Keep local generation off.
-2. Click **Explore the two-recovery example**. Compare an eight-second recovery-to-shot sequence with a nine-second recovery-to-possession-change sequence. These are different endpoints, not a speed ranking.
-3. Expand **Jump to a key moment**. At checkpoint 1 the outcome is developing. At checkpoint 2 a shot is observed; evidence is 3, 5, 7. Checkpoint 3 follows a different developing recovery. Checkpoint 4 closes that recovery without a shot, evidence 10, 12, 15.
-4. Switch to **Analyst** for the detailed sequence, or **Español** for authored Spanish explanations. The recorded outcome stays the same. English prepared AI-assisted templates and Spanish rule-based text are labelled accordingly.
-5. Inspect evidence, confirm the review checkbox, and download a producer package. Open its `card.html`; source events, context, provenance and review metadata accompany the card. Changing the selected story or audience resets review.
-6. **Match overview** holds the recap and statistics. **Wording studio** holds preparation. **Methods & checks** explains scope and evaluation.
+1. Choose **Riverside**, **Casual Fan**, and **English**. Leave local generation off.
+2. Select **Explore the two-recovery example** to compare two observed outcomes.
+3. Use **Jump to a key moment** to watch a pending recovery become a shot or close without a shot.
+4. Switch to **Analyst** to inspect the sequence and evidence, or **Español** for Spanish explanations.
+5. Review the selected story, then select **Download story package**. It contains an HTML card, structured story data, evidence, revealed events and a review record.
 
-For richer context, choose **Context storyline**, reveal all events, and inspect the first Riverside shot-producing recovery: it follows three earlier recoveries closed without a shot. Baselines use only earlier revealed evidence. The 24-case **Scenario laboratory** exposes additional authored edge cases.
+The 8-second and 9-second examples end at different outcomes; they are not a speed ranking. For a richer baseline, choose **Context storyline** and reveal all events: Riverside's first shot-producing recovery follows three earlier recoveries without shots.
 
-## What AI does—and what it does not
-
-The model drafts wording in advance. Python calculates the outcome, interval, context and evidence. Humans review wording before reuse. During replay, approved templates fill current team names and shot intervals; event IDs always come from current analysis. This separates slow preparation from responsive replay.
-
-Included wording:
-- One original user-imported pending template, preserved with its unverified model attribution.
-- One human-corrected shot template reconstructed from the exact wording the user displayed in their working app. Its original exported approval timestamp was not supplied, so it is null and its provenance explicitly identifies the reconstruction.
-
-A user-reported Phi-4-mini Quick draft run took **74.8 seconds generation + 21.2 seconds setup**. It produced fenced JSON and misstated the pressure interval. The user corrected and reviewed the wording. This is evidence of a local drafting attempt, not autonomous factual accuracy or a controlled speed benchmark.
-
-Current checks accept a single JSON code fence without editing its contents; reject some unsupported values and pressure timings; and preserve uncertainty. They are incomplete. They do not certify football meaning or translation quality. See [AI reliability](docs/AI_RELIABILITY.md).
-
-Optional generation uses `foundry-local-sdk==2.2.1` in `requirements-local.txt`. Install it only if testing generation; see [local AI setup](docs/LOCAL_AI_SETUP.md). Models may require substantial RAM, downloads and setup time. The observed selected variant was CPU-based. No GPU/NPU acceleration or performance guarantee is claimed. The six-asset preparation workflow is implemented and control-flow tested with mocks; six successful real reviewed outputs are not bundled. A proposed AI story-selection-only redesign has not been implemented.
-
-## Pipeline and implementation
-
-| Stage | Implementation |
+| Workspace | Purpose |
 | --- | --- |
-| Ingest | Replay revealed prefixes of validated synthetic event sequences |
-| Interpret | Track recoveries within contiguous possessions, first shots, boundaries and pressure associations |
-| Explain | Add prior-outcome context; select reviewed wording or authored fallback |
-| Render | Story cards, comparison panels, static HTML and event-timed JSON |
-| Personalize | Team selection, fan/analyst detail, English/Spanish |
+| Story desk | Compare recoveries, select a story, inspect evidence and export |
+| Match overview | Review statistics and recovery recaps |
+| Wording studio | Prepare, approve and save audience-specific wording |
+| Methods & checks | Understand the calculations and evaluation results |
 
-Main modules: `analytics.py` (facts/context), `narration.py` and `draft_checks.py` (wording/checks), `preparation.py` (snapshot assets/review), `local_ai.py` (isolated local process), `presentation.py` and `design.py` (UI), `producer.py` (reviewed export), `scenarios.py` (authored data).
+## How the pipeline works
 
-## Tests
+**Ingest → Interpret → Explain → Render → Personalize**
+
+Validated synthetic events are revealed in sequence. Python tracks contiguous possessions, recovery outcomes, timing and pressure associations. The story uses earlier observed outcomes for context. Cards and exports adapt to the selected team, audience and language.
+
+AI drafts wording; it does not calculate match facts. A human reviews drafts before they appear on the card. Reviewed templates can be reused with current facts during replay, avoiding a model request for every event. When a reviewed template is unavailable, authored wording supplies the explanation.
+
+To prepare a new local draft, follow [Local AI setup](docs/LOCAL_AI_SETUP.md). After approval, the draft appears on the story card. Select **Load approved draft into editor** to copy it into the reusable-wording form, review it, and save. Export review is tied to the exact story and revealed source data.
+
+## Validation
 
 ```text
 .venv\Scripts\python.exe -m unittest discover -s tests -v
 .venv\Scripts\python.exe evaluate.py
 ```
 
-Use `.venv/bin/python` on macOS/Linux. Tests cover event boundaries, future-event isolation, first-shot timing, context, wording provenance, review invalidation, exports and UI checkpoints. Cancellation tests use a fake subprocess worker. They do not benchmark a native model. See [validation](docs/VALIDATION.md) and `data/evaluation_report.json`. GitHub Actions is configured for Windows and Linux; a remote passing run is not claimed until the repository is published and CI finishes.
+On macOS/Linux, use `.venv/bin/python` instead. The suite contains **32 tests**, including simulated AI approval, editor loading, review invalidation and export consistency. The authored analytics evaluation covers **24 scenarios, 84 replay snapshots and 156 checks**. These are synthetic regression checks, not measurements of real-match accuracy or model factuality.
 
-## Scope, data and rights
+[GitHub Actions](https://github.com/deepaliattavar/matchlens/actions) runs tests on Windows and Linux. Check the latest run for the status of the current commit.
 
-All football events and players are synthetic. No real Premier League match data, match footage, photographs, logos or music are bundled. Northbridge and Riverside are fictional teams used throughout the project. The sample has 21 events, not a complete match. Generated sequences are authored demonstrations, not calibrated research data.
+## Scope
 
-Pressure within five seconds is an association, not a cause. A shot is not chance quality. Pending recoveries are not failures. Replay is not a live feed. HTML exports are static; no broadcast-renderer transport or video synchronization is implemented. No xG, computer vision, speed tracking, multi-agent orchestration or cloud deployment is claimed. Producer time savings and professional user validation remain unmeasured.
+This is a replay studio and runnable local test build. HTML cards are static exports; a production video-feed connection is not implemented. Pressure before recovery is an association, not proof of causation. A shot does not measure chance quality, and an unresolved recovery is not counted as a failure.
 
-See [architecture](docs/ARCHITECTURE.md) and [third-party notices](docs/THIRD_PARTY_NOTICES.md). No open-source license for the author's code is automatically granted by this README; the owner should choose a license deliberately if desired.
+Local AI can be slow or fail on limited hardware. Model outputs require review; the default demo uses bundled wording. Spanish fallback stories are authored templates, not claimed as generated outputs. Professional producer time savings have not yet been measured.
 
-## Submission and upgrade
+## Technical documentation
 
-Start at **[START_HERE_SUBMISSION.md](START_HERE_SUBMISSION.md)** for final Windows checks, repository publication, recording and upload. This repository/package is a runnable test build, not a hosted service; localhost is not accessible to judges. Public code/video URLs and final submission remain the entrant's tasks.
+- [Architecture](docs/ARCHITECTURE.md)
+- [AI reliability](docs/AI_RELIABILITY.md) and [local setup](docs/LOCAL_AI_SETUP.md)
+- [Validation details](docs/VALIDATION.md)
+- [Development history and AI provenance](docs/DEVELOPMENT_HISTORY.md)
+- [Third-party notices](docs/THIRD_PARTY_NOTICES.md)
+- [Submission checklist](START_HERE_SUBMISSION.md)
 
-When upgrading, keep the old folder as backup. Preserve your own `data/wording_library.json` and `data/preparations/` if they contain later approvals. Never overwrite your only copy. The included shot wording is already reconstructed from the reviewed conversation example.
+No real Premier League data, club logos, footage or music is included. No open-source license is granted by this README; a license can be chosen separately by the owner.

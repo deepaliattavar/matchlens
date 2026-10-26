@@ -144,7 +144,7 @@ def render_local_ai(story, events, model):
             approved[key] = True
             st.rerun()
     else:
-        if st.button('Use the rule-based story instead', key='revert_local_ai'):
+        if st.button('Use saved or rule-based wording', key='revert_local_ai'):
             approved.pop(key, None)
             st.rerun()
     if key in approved:
@@ -214,8 +214,16 @@ def render_wording_library(story, draft_story, events):
         initial = json.dumps(supplied_pending, indent=2) if can_seed else ''
         provenance = {'origin': 'user_supplied_ai_draft', 'model': 'not independently verified'}
     form_id = hashlib.sha256((key + str(story['evidence_event_ids'])).encode()).hexdigest()[:12]
+    editor_key = 'wording_raw_' + form_id
+    if editor_key not in st.session_state:
+        st.session_state[editor_key] = initial
+    if draft_story.get('generation_method') == 'human_reviewed_local_ai':
+        if st.button('Load approved draft into editor', key='load_draft_' + form_id,
+                     help='Replaces the text currently in the editor with your approved draft.'):
+            st.session_state[editor_key] = initial
+            st.session_state['wording_review_' + form_id] = False
     with st.form('wording_form_' + form_id):
-        raw = st.text_area('AI draft JSON — paste an existing result or use the reviewed result above', value=initial, height=150, key='wording_raw_' + form_id)
+        raw = st.text_area('AI draft JSON — paste an existing result or use the reviewed result above', height=150, key=editor_key)
         reviewed = st.checkbox('I reviewed the facts, language and reusable wording for this situation.', key='wording_review_' + form_id)
         save = st.form_submit_button('Save wording for live reuse')
     if save:
@@ -330,7 +338,7 @@ def render_recovery_recap(events, favorite, language):
 
 
 
-def render_contrast(events, favorite, language):
+def render_contrast(events, favorite, language, source):
     spanish = language == 'Español'
     st.subheader('Dos recuperaciones. Dos desenlaces.' if spanish else 'Two recoveries. Two different endings.')
     st.write('Recuperar el balón inicia la historia. La siguiente secuencia revela el desenlace.' if spanish else
@@ -339,7 +347,10 @@ def render_contrast(events, favorite, language):
     if not cases:
         st.info('La comparación aparecerá cuando se observen un remate y una posesión cerrada sin remate del mismo equipo.' if spanish else
                 'The comparison appears once the same team has an observed shot outcome and a possession closed without a shot. Pending recoveries stay unresolved.')
-        st.caption('To see the example: choose Riverside in the sidebar, then Jump to a key moment → 4. Compare both outcomes.')
+        if source == 'Original 21-event sample':
+            st.caption('To see the example: choose Riverside in the sidebar, then Jump to a key moment → 4. Compare both outcomes.')
+        else:
+            st.caption('Reveal more events or choose another team. Some scenarios intentionally do not contain both outcomes.')
         return
     html = contrast_html(cases, spanish)
     if hasattr(st, 'iframe'):
@@ -359,7 +370,7 @@ def render_contrast(events, favorite, language):
 
 
 
-DEMO_SCRIPT = (Path(__file__).resolve().parent/'docs'/'DEMO_GUIDE.txt').read_text(encoding='utf-8')
+
 
 
 @st.fragment(run_every=1)
@@ -593,7 +604,7 @@ if mode == 'Player Focus':
 
 with story_tab:
     st.markdown('<div class="ml-path"><span><b>1</b> Choose a recovery</span><span><b>2</b> Check the evidence</span><span><b>3</b> Download your story</span></div>', unsafe_allow_html=True)
-    render_contrast(events, favorite, language)
+    render_contrast(events, favorite, language, source)
     st.divider()
     st.subheader('1. Choose your recovery')
     recovery_id = render_recovery_selector(events, favorite)
@@ -610,7 +621,18 @@ with story_tab:
             st.subheader('Prepare once. Reuse with evidence.')
             st.caption('Drafts stay off the story desk until reviewed. Live replay never waits for a model.')
             story = render_asset_preparation(events, story, local_model, enable_generation)
+        with studio_tab:
+            with st.expander('Prepare or edit reusable wording', expanded=False):
+                draft_story = render_local_ai(source_story, events, local_model) if enable_generation else source_story
+                if not enable_generation:
+                    st.caption('Use saved wording or paste a draft below. To generate a new draft, enable Local AI setup in the sidebar.')
+                render_wording_library(source_story, draft_story, events)
+        if draft_story.get('generation_method') == 'human_reviewed_local_ai':
+            story = draft_story
         story = audience_story(story)
+        if story.get('recovery_event_id'):
+            story['context'] = recovery_context(events, story['recovery_event_id'])
+            story['context_explanation'] = context_explanation(story['context'], language, mode == 'Analyst')
         card_html = broadcast_card_html(story)
         if hasattr(st, 'iframe'):
             st.iframe(card_html, height='content', alt='Selected recovery story with outcome and evidence')
@@ -618,10 +640,7 @@ with story_tab:
             import streamlit.components.v1 as components
             components.html(card_html, height=365, scrolling=True)
         if story.get('recovery_event_id'):
-            context = recovery_context(events, story['recovery_event_id'])
-            story['context'] = context
-            story['context_explanation'] = context_explanation(context, language, mode == 'Analyst')
-            st.markdown(context_note(story['context_explanation'], language), unsafe_allow_html=True)
+            context = story['context']
             with st.expander('Context evidence and baseline'):
                 context_labels = {
                     'recovery_event_id': 'Recovery event', 'team': 'Team',
@@ -663,12 +682,6 @@ with story_tab:
         overlay = {**story, 'schema_version': 2, 'source_event_id': int(events.iloc[-1].event_id),
                    'replace_on_evidence_change': True, 'preparation_mode': 'reviewed_library_or_rule_fallback',
                    'display_duration_seconds': 8}
-        with studio_tab:
-            with st.expander('Prepare or edit reusable wording', expanded=False):
-                draft_story = render_local_ai(source_story, events, local_model) if enable_generation else source_story
-                if not enable_generation:
-                    st.caption('Use saved wording or paste a draft below. To generate a new draft, enable Local AI setup in the sidebar.')
-                render_wording_library(source_story, draft_story, events)
         st.subheader('3. Export your story')
         st.caption('Check the box below to download the card, evidence and review record. Changes to the story require a new review.')
         if story.get('recovery_event_id'):

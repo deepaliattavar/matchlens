@@ -48,8 +48,12 @@ def broadcast_card_html(story):
         title = story['headline']
     method = ('AI-prepared wording · selected live' if story['generation_method'] == 'ai_prepared_selected_live'
               else 'Rule-based wording · selected live')
+    if story['generation_method'] == 'human_reviewed_local_ai':
+        method = 'Human-reviewed local AI draft'
     ids = ', '.join(map(str, story['evidence_event_ids']))
     esc = lambda value: escape(str(value), quote=True)
+    context = story.get('context_explanation', '')
+    context_html = ('<aside><strong>' + ('Por qué importa' if spanish else 'Why this matters') + '</strong><p>' + esc(context) + '</p></aside>') if context else ''
     return f'''<!doctype html><html lang="{'es' if spanish else 'en'}"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>MatchLens story card</title>
 <style>
@@ -59,12 +63,13 @@ article{{background:#153b32;color:#f5f7fc;border:1px solid #285447;border-left:6
 .state{{color:{colors[state]}}}.brand{{color:#b7c4da}}.team{{margin-top:22px;color:#b7c4da;font-size:15px}}
 h2{{font-size:clamp(28px,3.5vw,40px);line-height:1.16;letter-spacing:-1px;margin:8px 0 16px}}
 p{{font-size:18px;line-height:1.6;max-width:900px;margin:0 0 22px}}
+aside{{border-top:1px solid #285447;padding-top:16px;margin-bottom:16px}}aside strong{{font-size:14px;color:#b7c4da}}aside p{{font-size:16px;margin:8px 0 0}}
 footer{{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;border-top:1px solid #304159;padding-top:14px;color:#bac8dc;font-size:13px;line-height:1.5}}
 @media(max-width:550px){{article{{padding:18px}}p{{font-size:15px}}}}
 </style></head><body><article aria-label="Recovery outcome story">
 <div class="top"><span class="brand">MATCHLENS · SYNTHETIC REPLAY</span><span class="state">{esc(labels[state])} · {'Hasta' if spanish else 'As of'} {esc(story['match_time'])}</span></div>
 <div class="team">{esc(story.get('recovery_team', story['favorite_team']))} · {esc(story['viewing_mode'])} · {'Recuperación' if spanish else 'Recovered'} {esc(story.get('recovery_time', '—'))}</div>
-<h2>{esc(title)}</h2><p>{esc(story['explanation'])}</p>
+<h2>{esc(title)}</h2><p>{esc(story['explanation'])}</p>{context_html}
 <footer><span>Evidence: {esc(ids)} · Recovery #{esc(story.get('recovery_event_id', '—'))}</span><span>{esc(method)}</span></footer>
 </article></body></html>'''
 
