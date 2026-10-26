@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "templates": {
+    "developing|True|Casual Fan|English": {
+      "template": "{team} recovered the ball; outcome pending. Same-team pressure was recorded within the preceding five seconds; this is an association, not proof of causation.",
+      "provenance": {
+        "origin": "user_supplied_ai_draft",
+        "model": "not independently verified"
+      },
+      "human_reviewed": true,
+      "approved_utc": "2026-10-22T06:06:01.174523+00:00",
+      "source_story": {
+        "headline": "Riverside: ball recovered; outcome pending",
+        "explanation": "No subsequent shot or possession change has been observed yet. It is too early to judge the outcome of this recovery. Same-team pressure was recorded within the preceding five seconds; this is an association, not proof of causation.",
+        "evidence_event_ids": [
+          3,
+          5
+        ],
+        "as_of_event_id": 5,
+        "match_time": "00:14",
+        "language": "English",
+        "viewing_mode": "Casual Fan",
+        "favorite_team": "Riverside",
+        "selected_player": null,
+        "generation_method": "rule_based",
+        "synthetic": true,
+        "suggested_display_seconds": 8,
+        "recovery_event_id": 5,
+        "possession_id": 2,
+        "recovery_team": "Riverside",
+        "recovery_time": "00:14",
+        "lifecycle_state": "developing",
+        "pressure_linked": true,
+        "seconds_to_shot": null
+      },
+      "source_text": "Riverside recovered the ball; outcome pending. Same-team pressure was recorded within the preceding five seconds; this is an association, not proof of causation."
+    },
+    "shot|True|Casual Fan|English": {
+      "template": "{team} recovered the ball and took a shot {seconds} seconds later in the same possession. Same-team pressure was recorded within the preceding five seconds; this is an association, not proof of causation.",
+      "provenance": {
+        "origin": "human_corrected_ai_draft_reconstructed_from_user_conversation",
+        "model": "phi-4-mini (user-reported; not independently rerun)",
+        "generation_seconds_user_reported": 74.8,
+        "setup_seconds_user_reported": 21.2,
+        "note": "User displayed this corrected wording in their app. Reconstructed from conversation; original exported approval file not supplied.",
+        "label_normalization": "Team names in the reconstructed source example were normalized to the fictional names used throughout this submission. The generic template is unchanged."
+      },
+      "human_reviewed": true,
+      "approved_utc": null,
+      "source_story": {
+        "headline": "Riverside: recovery → shot",
+        "explanation": "Riverside won the ball back and took a shot 8 seconds later in the same possession. That shows a turnover becoming an attempt; it does not establish the quality of the chance. Same-team pressure was recorded within the preceding five seconds; this is an association, not proof of causation.",
+        "evidence_event_ids": [
+          3,
+          5,
+          7
+        ],
+        "as_of_event_id": 7,
+        "match_time": "00:22",
+        "language": "English",
+        "viewing_mode": "Casual Fan",
+        "favorite_team": "Riverside",
+        "selected_player": null,
+        "generation_method": "rule_based",
+        "synthetic": true,
+        "suggested_display_seconds": 8,
+        "recovery_event_id": 5,
+        "possession_id": 2,
+        "recovery_team": "Riverside",
+        "recovery_time": "00:14",
+        "lifecycle_state": "shot",
+        "pressure_linked": true,
+        "seconds_to_shot": 8
+      },
+      "source_text": "Riverside recovered the ball and took a shot 8 seconds later in the same possession. Same-team pressure was recorded within the preceding five seconds; this is an association, not proof of causation.",
+      "approval_note": "User demonstrated corrected saved wording in conversation; original approval timestamp unavailable."
+    }
+  }
+}
