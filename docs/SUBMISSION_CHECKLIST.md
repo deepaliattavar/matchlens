@@ -2,7 +2,7 @@
 
 The authoritative action guide is [START_HERE_SUBMISSION.md](../START_HERE_SUBMISSION.md).
 
-- [ ] Final Windows install and 30 tests passed.
+- [ ] Final Windows install and 37 tests passed.
 - [ ] Four checkpoints, personalization, export and review reset checked.
 - [ ] Own original wording export backed up; provenance understood.
 - [ ] Fictional names used for video unless permissions established.
