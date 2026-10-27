@@ -136,6 +136,10 @@ def validate_events(df):
         raise ValueError('Missing columns: ' + ', '.join(sorted(required-set(df.columns))))
     if df.empty or df[list(required)].isna().any().any():
         raise ValueError('The dataset is empty or contains missing required values.')
+    from numbers import Integral
+    for column in ('event_id', 'possession_id'):
+        if not df[column].map(lambda value: isinstance(value, Integral) and not isinstance(value, bool) and value > 0).all():
+            raise ValueError(f'{column} must contain positive integers (1, 2, 3, ...); text, decimals and booleans are not supported.')
     if df.event_id.duplicated().any():
         raise ValueError('Event IDs must be unique.')
     df = df.copy()

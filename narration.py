@@ -155,6 +155,8 @@ def apply_wording(story, events, library):
     """Current evidence remains authoritative; prepared text supplies phrasing only."""
     if not story.get('lifecycle_state'):
         return story
+    if not isinstance(library, dict):
+        return story
     templates = library.get('templates', {})
     if not isinstance(templates, dict):
         return story
@@ -162,6 +164,15 @@ def apply_wording(story, events, library):
     if not isinstance(entry, dict) or entry.get('human_reviewed') is not True:
         return story
     try:
+        # A null timestamp is retained for documented historical imports; missing
+        # metadata or malformed non-null timestamps must never crash replay.
+        approved_utc = entry['approved_utc']
+        if not isinstance(entry['provenance'], dict):
+            return story
+        if approved_utc is not None:
+            from datetime import datetime
+            if not isinstance(approved_utc, str) or datetime.fromisoformat(approved_utc).tzinfo is None:
+                return story
         # Revalidate the saved abstraction; corrupted or manually altered entries fall back.
         verified = make_wording_entry(entry['source_story'], entry['source_text'], entry['provenance'])
         if entry['template'] != verified['template'] or wording_key(entry['source_story']) != wording_key(story):
@@ -173,6 +184,6 @@ def apply_wording(story, events, library):
     except (ValueError, KeyError, TypeError, AttributeError):
         return story
     return {**story, 'explanation': text, 'generation_method': 'ai_prepared_selected_live',
-            'wording_provenance': entry['provenance'], 'wording_approved_utc': entry['approved_utc'],
+            'wording_provenance': entry['provenance'], 'wording_approved_utc': approved_utc,
             'template_key': wording_key(story), 'source_explanation': story['explanation']}
 

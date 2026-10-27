@@ -64,7 +64,7 @@ To prepare a new local draft, follow [Local AI setup](docs/LOCAL_AI_SETUP.md). A
 .venv\Scripts\python.exe evaluate.py
 ```
 
-On macOS/Linux, use `.venv/bin/python` instead. The suite contains **32 tests**, including simulated AI approval, editor loading, review invalidation and export consistency. The authored analytics evaluation covers **24 scenarios, 84 replay snapshots and 156 checks**. These are synthetic regression checks, not measurements of real-match accuracy or model factuality.
+On macOS/Linux, use `.venv/bin/python` instead. The suite contains **37 tests**, including simulated AI approval, editor loading, review invalidation and export consistency. The authored analytics evaluation covers **24 scenarios, 84 replay snapshots and 156 checks**. These are synthetic regression checks, not measurements of real-match accuracy or model factuality.
 
 [GitHub Actions](https://github.com/deepaliattavar/matchlens/actions) runs tests on Windows and Linux. Check the latest run for the status of the current commit.
 
