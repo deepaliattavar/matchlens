@@ -8,6 +8,8 @@ Built by **Deepali Attavar**, with AI-assisted development. Uses **Python, panda
 
 All teams, players and match events are synthetic. The app runs locally; no Azure subscription, API key or paid inference is required.
 
+▶️ [Watch the MatchLens demo](https://youtu.be/TAz_9YGRjEg)
+
 ## Try it
 
 Use Python **3.12**. Download this repository and open a terminal in the folder containing `app.py`.
