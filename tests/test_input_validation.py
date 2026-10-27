@@ -37,3 +37,24 @@ class InputValidationTests(unittest.TestCase):
   result=apply_wording(self.story,self.events,self.library)
   self.assertEqual(result['generation_method'],'ai_prepared_selected_live')
   self.assertIsNone(result['wording_approved_utc'])
+
+ def test_damaged_wording_entries_do_not_crash_the_app(self):
+  from unittest.mock import patch
+  from streamlit.testing.v1 import AppTest
+  key=wording_key(self.story)
+  missing=copy.deepcopy(self.library['templates'][key]);missing.pop('template')
+  for damaged in [None, missing, {'template': 42}]:
+   with self.subTest(entry=damaged):
+    library=copy.deepcopy(self.library);library['templates'][key]=damaged
+    with patch('narration.load_wording_library',return_value=library):
+     app=AppTest.from_file(str(ROOT/'app.py'),default_timeout=30).run()
+     app.button(key='demo_7').click().run()
+     self.assertFalse(app.exception)
+     self.assertTrue(any('incomplete or invalid' in item.value for item in app.warning))
+     html=next(x.proto.srcdoc for x in app.get('iframe') if 'MATCHLENS · SYNTHETIC REPLAY' in x.proto.srcdoc)
+     self.assertIn('Rule-based wording',html)
+     self.assertIn('8s',html)
+     review=next(c for c in app.checkbox if (c.key or '').startswith('producer_review_'))
+     review.check().run()
+     self.assertFalse(app.exception)
+     self.assertTrue(any('Package ready' in item.value for item in app.success))
