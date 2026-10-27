@@ -13,7 +13,7 @@ python -m venv .venv
 .venv\Scripts\python.exe -m streamlit run app.py
 ```
 
-Expected automated result: **37 tests pass**. This test does not require Foundry, model downloads or paid services. If a command fails, retain the exact error; do not mark the test complete.
+Expected automated result: **38 tests pass**. This test does not require Foundry, model downloads or paid services. If a command fails, retain the exact error; do not mark the test complete.
 
 In the app:
 - [ ] Select **Riverside**, Casual Fan, English. Leave local AI OFF.

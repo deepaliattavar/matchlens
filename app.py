@@ -195,8 +195,14 @@ def render_wording_library(story, draft_story, events):
     key = wording_key(story)
     st.caption('Current wording slot: ' + key)
     if key in library.get('templates', {}):
-        st.success('A reviewed template is saved for this situation.')
-        st.code(library['templates'][key]['template'])
+        entry = library['templates'][key]
+        selected = apply_wording(story, events, library)
+        if (isinstance(entry, dict) and isinstance(entry.get('template'), str)
+                and selected.get('generation_method') == 'ai_prepared_selected_live'):
+            st.success('A reviewed template is saved for this situation.')
+            st.code(entry['template'])
+        else:
+            st.warning('Saved wording for this situation is incomplete or invalid. The story uses fallback wording; replace or remove the saved entry below.')
     supplied_pending = {
         'explanation': 'Riverside recovered the ball; outcome pending. Same-team pressure was recorded within the preceding five seconds; this is an association, not proof of causation.',
         'evidence_event_ids': [3, 5],
